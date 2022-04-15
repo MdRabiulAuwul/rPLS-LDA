@@ -1,24 +1,29 @@
+library(class)
+library(plsgenomics)
+library(MASS)
+library(caret)
+library(robustbase)
+
 source("rPLS-LDA Methods.r")
 
-up_DatTra=UpdateX(Train_Data,Train_Class)
+#load all data
+Train_Data=DatTrao
+Test_Data=DatTeeo
+Train_Class=trClass
+Test_Class=TrlevelTest
+################## PLS-LDA ####################
+plsldao<-pls.lda(Xtrain=t(Train_Data),Ytrain=Train_Class,Xtest=t(Test_Data),ncomp=2,nruncv=0)#ncomp=1:4,nruncv=20
+pred.plsldao<-plsldao$predclass
+Resultplsldao<-confusionMatrix(pred.plsldao,as.factor(Test_Class))
+Accuracy_PLS_LDA<-Resultplsldao[[3]][1]
 
-rpValue_anova<-NULL ; 
-for (j1 in 1:dim(up_DatTra)[1])
-{
-  rDataYY <- data.frame(YY =up_DatTra[j1,], FactorLevels = factor(Train_Class))
-  rpValue_anova[j1] <-  t.test(YY~FactorLevels,data=rDataYY)[[1]]
-}
+########## rPLS_LDA #############
+Train_Datar<-UpdateX(Train_Data,as.factor(Train_Class))
+Rplsldao<-pls.lda(Xtrain=t(Train_Datar),Ytrain=Train_Class,Xtest=t(Test_Data),ncomp=2,nruncv=0)
+pred.Rplsldao<-Rplsldao$predclass
+ResultRplsldao<-confusionMatrix(pred.Rplsldao,as.factor(Test_Class))
+Accuracy_rPLS_LDA<-ResultRplsldao[[3]][1]
 
-radj.pval<-p.adjust(rpValue_anova,"BH")
-
-rTop40DE<-sort(radj.pval,index.return=TRUE)$ix[1:TopN]
-rDatTra=up_DatTra[rTop40DE,]
-
-rDatTee=Test_Data[rTop40DE,]
-
-rPLS-LDA=pls.lda(Xtrain=t(rDatTra),Ytrain=Trlevel,Xtest=t(rDatTee), ncomp=1:4,nruncv=20)
-
-Result_rPLS_LDA=confusionMatrix(as.factor(ryy[[1]]),as.factor(Televel))
-
-
+Accuracy_PLS_LDA
+Accuracy_rPLS_LDA
 
